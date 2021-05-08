@@ -1,5 +1,6 @@
 #include<iostream>
-#include<conio.h>
+#include<conio.h> //input fx
+#include <Windows.h> // sleep fx
 using namespace std;
 // class
 class Vector2{
@@ -16,7 +17,9 @@ char mapBorder = '#';
 char snakeHead = 'O';
 char snakeBody = 'x';
 char devilFruit = '+';
-int score;
+Vector2 snakeTail[100];
+int tailLength = 0;
+int score , gameSpeed = 5;
 Vector2 snakePos,fruitPos;
 enum Dir{ STOP = 0 , LEFT = 1 , RIGHT = 2 , UP = 3 , DOWN = 4};
 Dir snakeDir;
@@ -65,7 +68,18 @@ void Draw(){
                     cout<<devilFruit;
                 }
                 else{
-                    cout<<" ";
+                    //printing tail
+                    bool tailPrinted = false;
+                    for(int k = 0;k < tailLength;k++){
+                        if(i==snakeTail[k].x && j == snakeTail[k].y){
+                            cout<<snakeBody;
+                            tailPrinted = true;
+                        }
+                    }
+                    if(tailPrinted == false){
+                        cout<<" ";
+                    }
+                    
                 } 
             }
         }
@@ -103,6 +117,28 @@ void Input(){
 }
 
 void Logic(){
+    //snakeTail[0].x = snakePos.x;
+    //snakeTail[0].y = snakePos.y;
+    // if position of the two lines is changed to above a wierd behaviour can be observed
+    int prevX = snakeTail[0].x; // previous pos of tail 
+    int prevY = snakeTail[0].y;
+    snakeTail[0].x = snakePos.x;
+    snakeTail[0].y = snakePos.y;
+    int previousX = 0,previousY = 0;
+    for (int i = 1; i <tailLength; i++)
+    {
+        previousX = snakeTail[i].x;
+        previousY = snakeTail[i].y;
+        snakeTail[i].x = prevX;
+        snakeTail[i].y = prevY;
+        prevX = previousX;
+        prevY = previousY;
+    }
+    for(int i = 1 ; i < tailLength;i++){
+        if(snakeTail[i].x == snakePos.x  && snakeTail[i].y == snakePos.y){
+            gameOver = true;
+        }
+    }
 switch (snakeDir)
 {
     // here the reason is that i is the row and we are moving snake in i so
@@ -138,6 +174,7 @@ switch (snakeDir)
     if(snakePos.x == fruitPos.x && snakePos.y == fruitPos.y){
         score ++;
         SpawnFruitAtRandom();
+        tailLength++;
     }
 }
 
@@ -149,6 +186,7 @@ int main()
         Draw();
         Input();
         Logic();
+        Sleep(gameSpeed);
     }
     cout<<"Game Over your Score is :"<<score;
     
